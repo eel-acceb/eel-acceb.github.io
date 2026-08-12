@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Anniversary</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..700&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #1B3B2F;
+    --green-deep: #12281F;
+    --sage: #E9EDE2;
+    --rose: #D6787E;
+    --rose-deep: #B85960;
+    --brass: #C9A227;
+    --ink: #1A1F1C;
+    --paper: #F6F5EF;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--green);
+    background-image: radial-gradient(circle at 20% 10%, rgba(255,255,255,0.05), transparent 45%),
+                       radial-gradient(circle at 85% 85%, rgba(214,120,126,0.1), transparent 50%);
+    min-height: 100vh;
+    font-family: 'Work Sans', sans-serif;
+    color: var(--paper);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+
+  .vine {
+    width: 100%;
+    max-width: 480px;
+    height: 20px;
+    margin-bottom: 36px;
+    opacity: 0.5;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: clamp(30px, 8vw, 46px);
+    margin: 0 0 24px;
+    text-align: center;
+    letter-spacing: -0.01em;
+    max-width: 420px;
+  }
+
+  .intro-box {
+    background: var(--sage);
+    color: var(--ink);
+    border-radius: 14px;
+    padding: 28px 26px;
+    max-width: 420px;
+    width: 100%;
+    box-shadow: 0 16px 36px rgba(0,0,0,0.25);
+    margin-bottom: 32px;
+  }
+
+  .intro-box p {
+    font-family: 'Fraunces', serif;
+    font-size: 17px;
+    line-height: 1.7;
+    margin: 0;
+    color: rgba(26,31,26,0.85);
+  }
+
+  .btn-start {
+    background: var(--rose);
+    color: var(--green-deep);
+    border: none;
+    border-radius: 30px;
+    padding: 16px 40px;
+    font-family: 'Work Sans', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.15s ease;
+  }
+
+  .btn-start:hover {
+    background: var(--rose-deep);
+    transform: translateY(-1px);
+  }
+</style>
+</head>
+<body>
+
+<svg class="vine" viewBox="0 0 480 20" preserveAspectRatio="none">
+  <path d="M0,10 Q40,2 80,10 T160,10 T240,10 T320,10 T400,10 T480,10" stroke="#D6787E" stroke-width="1.5" fill="none" opacity="0.6"/>
+  <circle cx="80" cy="10" r="3" fill="rgba(201,162,39,0.3)"/>
+  <circle cx="160" cy="10" r="3" fill="rgba(201,162,39,0.3)"/>
+  <circle cx="240" cy="10" r="3" fill="rgba(201,162,39,0.3)"/>
+  <circle cx="320" cy="10" r="3" fill="rgba(201,162,39,0.3)"/>
+  <circle cx="400" cy="10" r="3" fill="rgba(201,162,39,0.3)"/>
+</svg>
+
+<h1>Happy Anniversary</h1>
+
+<div class="intro-box">
+  <p>Text will go here</p>
+</div>
+
+<button class="btn-start" id="startBtn">Begin →</button>
+
+<script>
+  document.getElementById('startBtn').addEventListener('click', () => {
+    window.location.href = 'stage1-wordle.html';
+  });
+</script>
+
+</body>
+</html>

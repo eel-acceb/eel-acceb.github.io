@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Round One</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..700&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #1B3B2F;
+    --green-deep: #12281F;
+    --sage: #E9EDE2;
+    --rose: #D6787E;
+    --rose-deep: #B85960;
+    --brass: #C9A227;
+    --ink: #1A1F1C;
+    --paper: #F6F5EF;
+    --correct: #6AAA64;
+    --present: #E8C547;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--green);
+    background-image: radial-gradient(circle at 20% 10%, rgba(255,255,255,0.04), transparent 40%),
+                       radial-gradient(circle at 85% 90%, rgba(214,120,126,0.08), transparent 45%);
+    min-height: 100vh;
+    font-family: 'Work Sans', sans-serif;
+    color: var(--paper);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32px 16px 60px;
+  }
+
+  .vine {
+    width: 100%;
+    max-width: 480px;
+    height: 20px;
+    margin-bottom: 28px;
+    opacity: 0.9;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: clamp(28px, 6vw, 40px);
+    margin: 0 0 6px;
+    letter-spacing: -0.01em;
+    text-align: center;
+  }
+
+  p.tagline {
+    font-size: 15px;
+    color: rgba(246,245,239,0.72);
+    margin: 0 0 32px;
+    text-align: center;
+    max-width: 340px;
+    line-height: 1.5;
+  }
+
+  .board {
+    display: grid;
+    grid-template-rows: repeat(6, 1fr);
+    gap: 8px;
+    margin-bottom: 28px;
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+  }
+
+  .tile {
+    width: 52px;
+    height: 52px;
+    border: 2px solid rgba(246,245,239,0.25);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+    font-size: 24px;
+    color: var(--paper);
+    background: transparent;
+    text-transform: uppercase;
+    transition: transform 0.15s ease;
+  }
+
+  .tile.filled {
+    border-color: rgba(246,245,239,0.55);
+    animation: pop 0.1s ease;
+  }
+
+  .tile.correct {
+    background: var(--correct);
+    border-color: var(--correct);
+    color: var(--green-deep);
+  }
+
+  .tile.present {
+    background: var(--present);
+    border-color: var(--present);
+    color: var(--green-deep);
+  }
+
+  .tile.absent {
+    background: rgba(246,245,239,0.08);
+    border-color: rgba(246,245,239,0.15);
+    color: rgba(246,245,239,0.5);
+  }
+
+  .tile.flip {
+    animation: flip 0.5s ease;
+  }
+
+  @keyframes pop {
+    0% { transform: scale(0.9); }
+    100% { transform: scale(1); }
+  }
+
+  @keyframes flip {
+    0% { transform: rotateX(0deg); }
+    50% { transform: rotateX(90deg); }
+    100% { transform: rotateX(0deg); }
+  }
+
+  .keyboard {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    max-width: 480px;
+  }
+
+  .krow {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .key {
+    background: rgba(246,245,239,0.12);
+    border: none;
+    border-radius: 6px;
+    color: var(--paper);
+    font-family: 'Work Sans', sans-serif;
+    font-weight: 500;
+    font-size: 13px;
+    padding: 14px 10px;
+    min-width: 32px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .key:hover { background: rgba(246,245,239,0.2); }
+  .key:active { background: rgba(246,245,239,0.3); }
+
+  .key.wide { min-width: 56px; font-size: 11px; }
+
+  .key.correct { background: var(--correct); color: var(--green-deep); }
+  .key.present { background: var(--present); color: var(--green-deep); }
+  .key.absent { background: rgba(246,245,239,0.06); color: rgba(246,245,239,0.35); }
+
+  .message {
+    margin-top: 24px;
+    min-height: 28px;
+    font-family: 'Fraunces', serif;
+    font-size: 18px;
+    font-weight: 500;
+    text-align: center;
+    color: var(--brass);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .message.show { opacity: 1; }
+
+  .continue-btn {
+    margin-top: 18px;
+    background: var(--rose);
+    color: var(--green-deep);
+    border: none;
+    border-radius: 30px;
+    padding: 14px 32px;
+    font-family: 'Work Sans', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.4s ease, transform 0.4s ease, background 0.15s ease;
+    pointer-events: none;
+  }
+
+  .continue-btn.show {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .continue-btn:hover { background: var(--rose-deep); }
+
+  @media (max-width: 380px) {
+    .tile { width: 42px; height: 42px; font-size: 20px; }
+    .key { padding: 12px 7px; font-size: 12px; min-width: 26px; }
+  }
+</style>
+</head>
+<body>
+
+<svg class="vine" viewBox="0 0 480 20" preserveAspectRatio="none">
+  <path d="M0,10 Q40,2 80,10 T160,10 T240,10 T320,10 T400,10 T480,10" stroke="#D6787E" stroke-width="1.5" fill="none" opacity="0.6"/>
+  <circle cx="80" cy="10" r="3" fill="#C9A227"/>
+  <circle cx="160" cy="10" r="3" fill="rgba(201,162,39,0.3)"/>
+  <circle cx="240" cy="10" r="3" fill="rgba(201,162,39,0.3)"/>
+  <circle cx="320" cy="10" r="3" fill="rgba(201,162,39,0.3)"/>
+  <circle cx="400" cy="10" r="3" fill="rgba(201,162,39,0.3)"/>
+</svg>
+
+<h1>Round One</h1>
+<p class="tagline">Ten years in, one word to start. You know this one better than anyone.</p>
+
+<div class="board" id="board"></div>
+
+<div class="keyboard" id="keyboard"></div>
+
+<div class="message" id="message"></div>
+<button class="continue-btn" id="continueBtn">Continue →</button>
+
+<script>
+  // Swap this to your real 5-letter answer when ready
+  const ANSWER = "HAPPY";
+
+  const ROWS = 6;
+  const COLS = 5;
+  let currentRow = 0;
+  let currentCol = 0;
+  let gameOver = false;
+  const guesses = Array.from({length: ROWS}, () => Array(COLS).fill(""));
+
+  const board = document.getElementById('board');
+  for (let r = 0; r < ROWS; r++) {
+    const row = document.createElement('div');
+    row.className = 'row';
+    row.id = 'row-' + r;
+    for (let c = 0; c < COLS; c++) {
+      const tile = document.createElement('div');
+      tile.className = 'tile';
+      tile.id = `tile-${r}-${c}`;
+      row.appendChild(tile);
+    }
+    board.appendChild(row);
+  }
+
+  const keyRows = [
+    "QWERTYUIOP".split(""),
+    "ASDFGHJKL".split(""),
+    ["ENTER", ..."ZXCVBNM".split(""), "BACK"]
+  ];
+
+  const keyboard = document.getElementById('keyboard');
+  keyRows.forEach(rowKeys => {
+    const krow = document.createElement('div');
+    krow.className = 'krow';
+    rowKeys.forEach(k => {
+      const btn = document.createElement('button');
+      btn.className = 'key' + (k.length > 1 ? ' wide' : '');
+      btn.textContent = k === 'BACK' ? '⌫' : (k === 'ENTER' ? 'Enter' : k);
+      btn.id = 'key-' + k;
+      btn.addEventListener('click', () => handleKey(k));
+      krow.appendChild(btn);
+    });
+    keyboard.appendChild(krow);
+  });
+
+  function handleKey(key) {
+    if (gameOver) return;
+    if (key === 'BACK') {
+      if (currentCol > 0) {
+        currentCol--;
+        guesses[currentRow][currentCol] = "";
+        updateTile(currentRow, currentCol);
+      }
+    } else if (key === 'ENTER') {
+      submitGuess();
+    } else if (currentCol < COLS) {
+      guesses[currentRow][currentCol] = key;
+      updateTile(currentRow, currentCol);
+      currentCol++;
+    }
+  }
+
+  function updateTile(r, c) {
+    const tile = document.getElementById(`tile-${r}-${c}`);
+    tile.textContent = guesses[r][c];
+    tile.classList.toggle('filled', guesses[r][c] !== "");
+  }
+
+  function submitGuess() {
+    if (currentCol < COLS) {
+      showMessage("Not enough letters", false);
+      return;
+    }
+    const guess = guesses[currentRow].join("");
+    const answerLetters = ANSWER.split("");
+    const guessLetters = guess.split("");
+    const result = Array(COLS).fill("absent");
+    const used = Array(COLS).fill(false);
+
+    for (let i = 0; i < COLS; i++) {
+      if (guessLetters[i] === answerLetters[i]) {
+        result[i] = "correct";
+        used[i] = true;
+      }
+    }
+    for (let i = 0; i < COLS; i++) {
+      if (result[i] === "correct") continue;
+      for (let j = 0; j < COLS; j++) {
+        if (!used[j] && guessLetters[i] === answerLetters[j]) {
+          result[i] = "present";
+          used[j] = true;
+          break;
+        }
+      }
+    }
+
+    for (let i = 0; i < COLS; i++) {
+      const tile = document.getElementById(`tile-${currentRow}-${i}`);
+      setTimeout(() => {
+        tile.classList.add('flip');
+        setTimeout(() => tile.classList.add(result[i]), 250);
+      }, i * 100);
+
+      const keyBtn = document.getElementById('key-' + guessLetters[i]);
+      if (keyBtn) {
+        const priority = { absent: 0, present: 1, correct: 2 };
+        const currentClass = ['correct','present','absent'].find(c => keyBtn.classList.contains(c));
+        if (!currentClass || priority[result[i]] > priority[currentClass]) {
+          keyBtn.classList.remove('correct','present','absent');
+          keyBtn.classList.add(result[i]);
+        }
+      }
+    }
+
+    setTimeout(() => {
+      if (guess === ANSWER) {
+        gameOver = true;
+        showMessage("That's the one.", true);
+        showContinue();
+      } else if (currentRow === ROWS - 1) {
+        gameOver = true;
+        showMessage(`The word was ${ANSWER}`, true);
+        showContinue();
+      } else {
+        currentRow++;
+        currentCol = 0;
+      }
+    }, COLS * 100 + 400);
+  }
+
+  function showMessage(text, persist) {
+    const msg = document.getElementById('message');
+    msg.textContent = text;
+    msg.classList.add('show');
+    if (!persist) {
+      setTimeout(() => msg.classList.remove('show'), 1500);
+    }
+  }
+
+  function showContinue() {
+    setTimeout(() => {
+      document.getElementById('continueBtn').classList.add('show');
+    }, 600);
+  }
+
+  document.getElementById('continueBtn').addEventListener('click', () => {
+    window.location.href = 'stage2-crossword.html';
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') handleKey('ENTER');
+    else if (e.key === 'Backspace') handleKey('BACK');
+    else if (/^[a-zA-Z]$/.test(e.key)) handleKey(e.key.toUpperCase());
+  });
+</script>
+
+</body>
+</html>

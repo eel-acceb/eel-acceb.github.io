@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Favourite Things</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..700&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #1B3B2F;
+    --green-deep: #12281F;
+    --sage: #E9EDE2;
+    --rose: #D6787E;
+    --rose-deep: #B85960;
+    --brass: #C9A227;
+    --ink: #1A1F1C;
+    --paper: #F6F5EF;
+    --correct: #6AAA64;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    margin: 0;
+    background: var(--green);
+    background-image: radial-gradient(circle at 20% 10%, rgba(255,255,255,0.04), transparent 40%),
+                       radial-gradient(circle at 85% 90%, rgba(214,120,126,0.08), transparent 45%);
+    min-height: 100vh;
+    font-family: 'Work Sans', sans-serif;
+    color: var(--paper);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32px 16px 60px;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+  }
+
+  .vine {
+    width: 100%;
+    max-width: 480px;
+    height: 20px;
+    margin-bottom: 20px;
+    opacity: 0.9;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: clamp(24px, 6vw, 34px);
+    margin: 0 0 6px;
+    text-align: center;
+  }
+
+  p.tagline {
+    font-size: 14px;
+    color: rgba(246,245,239,0.72);
+    margin: 0 0 20px;
+    text-align: center;
+    max-width: 340px;
+    line-height: 1.5;
+  }
+
+  .hint-banner {
+    min-height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+
+  .hint-text {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 18px;
+    color: var(--brass);
+    text-align: center;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+
+  .hint-text.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .grid-wrap {
+    position: relative;
+    touch-action: none;
+  }
+
+  .grid {
+    display: grid;
+    gap: 6px;
+    background: rgba(246,245,239,0.06);
+    padding: 10px;
+    border-radius: 14px;
+    position: relative;
+    touch-action: none;
+  }
+
+  .tile {
+    width: 68px;
+    height: 68px;
+    background: var(--sage);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+    font-size: 26px;
+    color: var(--ink);
+    position: relative;
+    z-index: 2;
+    transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+  }
+
+  .tile.active {
+    background: var(--brass);
+    color: var(--green-deep);
+    transform: scale(1.08);
+  }
+
+  .tile.solved {
+    background: var(--correct);
+    color: var(--green-deep);
+  }
+
+  .tile.cleared {
+    opacity: 0;
+    transform: translateY(50px) rotate(12deg) scale(0.7);
+    transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.4, 0, 1, 1);
+    pointer-events: none;
+  }
+
+  svg.path-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 24px;
+    max-width: 400px;
+  }
+
+  .pill {
+    background: rgba(246,245,239,0.12);
+    border-radius: 20px;
+    padding: 10px 20px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 15px;
+    font-weight: 600;
+    color: rgba(246,245,239,0.6);
+    transition: background 0.3s ease, color 0.3s ease;
+    min-width: 34px;
+    text-align: center;
+  }
+
+  .pill.solved {
+    background: var(--brass);
+    color: var(--green-deep);
+    padding: 10px 18px;
+    font-family: 'Work Sans', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  .actions {
+    margin-top: 28px;
+  }
+
+  .btn.continue {
+    background: var(--rose);
+    color: var(--green-deep);
+    border: none;
+    border-radius: 30px;
+    padding: 14px 34px;
+    font-family: 'Work Sans', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(8px);
+    pointer-events: none;
+    transition: opacity 0.4s ease, transform 0.4s ease, background 0.15s ease;
+  }
+  .btn.continue.show {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+  .btn.continue:hover { background: var(--rose-deep); }
+</style>
+</head>
+<body>
+
+<svg class="vine" viewBox="0 0 480 20" preserveAspectRatio="none">
+  <path d="M0,10 Q40,2 80,10 T160,10 T240,10 T320,10 T400,10 T480,10" stroke="#D6787E" stroke-width="1.5" fill="none" opacity="0.6"/>
+  <circle cx="80" cy="10" r="3" fill="#C9A227"/>
+  <circle cx="160" cy="10" r="3" fill="#C9A227"/>
+  <circle cx="240" cy="10" r="3" fill="#C9A227"/>
+  <circle cx="320" cy="10" r="3" fill="rgba(201,162,39,0.3)"/>
+  <circle cx="400" cy="10" r="3" fill="rgba(201,162,39,0.3)"/>
+</svg>
+
+<h1>Your Favourite Things</h1>
+<p class="tagline">Drag across connected letters to find each one.</p>
+
+<div class="hint-banner"><div class="hint-text" id="hintText"></div></div>
+
+<div class="grid-wrap" id="gridWrap">
+  <div class="grid" id="grid"></div>
+  <svg class="path-layer" id="pathLayer"></svg>
+</div>
+
+<div class="pills" id="pills"></div>
+
+<div class="actions">
+  <button class="btn continue" id="continueBtn">Continue →</button>
+</div>
+
+<script>
+  const GRID = [
+    "ASGG",
+    "LTER",
+    "ONES",
+    "YSEV",
+  ].map(row => row.split(""));
+
+  const ROWS = 4, COLS = 4;
+
+  const WORDS = [
+    { word: "SALT",  hint: "Your favourite popcorn",   path: [[0,1],[0,0],[1,0],[1,1]] },
+    { word: "SEVEN", hint: "Your favourite number",    path: [[2,3],[3,2],[3,3],[2,2],[2,1]] },
+    { word: "GREEN", hint: "Your favourite colour",    path: [[0,3],[1,3],[2,2],[1,2],[2,1]] },
+    { word: "TONYS", hint: "Your favourite chocolate", path: [[1,1],[2,0],[2,1],[3,0],[3,1]] },
+    { word: "EGGS",  hint: "Your favourite sweets",    path: [[1,2],[0,3],[0,2],[0,1]] },
+  ];
+
+  const TILE = 68, GAP = 6, PAD = 10;
+  const solvedWords = new Set();
+
+  const gridEl = document.getElementById('grid');
+  const pathLayer = document.getElementById('pathLayer');
+  const hintText = document.getElementById('hintText');
+  const pillsEl = document.getElementById('pills');
+
+  gridEl.style.gridTemplateColumns = `repeat(${COLS}, ${TILE}px)`;
+  gridEl.style.gridTemplateRows = `repeat(${ROWS}, ${TILE}px)`;
+
+  const tileEls = [];
+  for (let r = 0; r < ROWS; r++) {
+    tileEls.push([]);
+    for (let c = 0; c < COLS; c++) {
+      const div = document.createElement('div');
+      div.className = 'tile';
+      div.textContent = GRID[r][c];
+      div.dataset.r = r;
+      div.dataset.c = c;
+      gridEl.appendChild(div);
+      tileEls[r].push(div);
+    }
+  }
+
+  const svgWidth = COLS * TILE + (COLS - 1) * GAP + PAD * 2;
+  const svgHeight = ROWS * TILE + (ROWS - 1) * GAP + PAD * 2;
+  pathLayer.setAttribute('width', svgWidth);
+  pathLayer.setAttribute('height', svgHeight);
+  pathLayer.setAttribute('viewBox', `0 0 ${svgWidth} ${svgHeight}`);
+
+  // Track how many still-unsolved words depend on each cell.
+  // A cell only falls away once this count reaches zero.
+  const cellDeps = [];
+  const cleared = [];
+  for (let r = 0; r < ROWS; r++) {
+    cellDeps.push(new Array(COLS).fill(0));
+    cleared.push(new Array(COLS).fill(false));
+  }
+  WORDS.forEach(w => {
+    w.path.forEach(([r, c]) => { cellDeps[r][c]++; });
+  });
+
+  function releaseDependencies(word) {
+    word.path.forEach(([r, c]) => {
+      cellDeps[r][c]--;
+      const willClear = cellDeps[r][c] <= 0 && !cleared[r][c];
+      setTimeout(() => {
+        if (willClear) {
+          cleared[r][c] = true;
+          tileEls[r][c].classList.add('cleared');
+        } else {
+          // no longer needed by the word just solved, but another
+          // pending word still needs this letter — back to normal
+          tileEls[r][c].classList.remove('solved');
+        }
+      }, 550);
+    });
+  }
+
+  function cellCenter(r, c) {
+    const x = PAD + c * (TILE + GAP) + TILE / 2;
+    const y = PAD + r * (TILE + GAP) + TILE / 2;
+    return [x, y];
+  }
+
+  const sortedWords = WORDS.slice().sort((a, b) => a.word.length - b.word.length);
+  sortedWords.forEach(w => {
+    const pill = document.createElement('div');
+    pill.className = 'pill';
+    pill.id = 'pill-' + w.word;
+    pill.textContent = w.word.length;
+    pillsEl.appendChild(pill);
+  });
+
+  let path = [];
+  let dragging = false;
+
+  function isAdjacent(a, b) {
+    return Math.abs(a.r - b.r) <= 1 && Math.abs(a.c - b.c) <= 1 && !(a.r === b.r && a.c === b.c);
+  }
+
+  function inPath(r, c) {
+    return path.some(p => p.r === r && p.c === c);
+  }
+
+  function drawPath() {
+    pathLayer.innerHTML = '';
+    if (path.length < 2) return;
+    let d = '';
+    path.forEach((p, i) => {
+      const [x, y] = cellCenter(p.r, p.c);
+      d += (i === 0 ? `M${x},${y}` : ` L${x},${y}`);
+    });
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    line.setAttribute('d', d);
+    line.setAttribute('stroke', '#C9A227');
+    line.setAttribute('stroke-width', '18');
+    line.setAttribute('stroke-linecap', 'round');
+    line.setAttribute('stroke-linejoin', 'round');
+    line.setAttribute('fill', 'none');
+    line.setAttribute('opacity', '0.5');
+    pathLayer.appendChild(line);
+  }
+
+  function updateTileVisuals() {
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        const el = tileEls[r][c];
+        if (!cleared[r][c]) {
+          el.classList.toggle('active', inPath(r, c));
+        }
+      }
+    }
+  }
+
+  function currentLetters() {
+    return path.map(p => GRID[p.r][p.c]).join('');
+  }
+
+  function tryMatch() {
+    const letters = currentLetters();
+    const reversed = letters.split('').reverse().join('');
+    const match = WORDS.find(w => !solvedWords.has(w.word) && (w.word === letters || w.word === reversed));
+    if (match) {
+      solvedWords.add(match.word);
+      path.forEach(p => tileEls[p.r][p.c].classList.add('solved'));
+      const pill = document.getElementById('pill-' + match.word);
+      pill.classList.add('solved');
+      pill.textContent = match.word;
+      showHint(match.hint);
+      releaseDependencies(match);
+      if (solvedWords.size === WORDS.length) {
+        setTimeout(() => document.getElementById('continueBtn').classList.add('show'), 500);
+      }
+    }
+  }
+
+  function showHint(text) {
+    hintText.textContent = text;
+    hintText.classList.remove('show');
+    requestAnimationFrame(() => hintText.classList.add('show'));
+  }
+
+  function endDrag() {
+    if (dragging) tryMatch();
+    dragging = false;
+    path = [];
+    updateTileVisuals();
+    drawPath();
+  }
+
+  function cellFromPoint(x, y) {
+    const el = document.elementFromPoint(x, y);
+    if (el && el.classList.contains('tile')) {
+      return { r: +el.dataset.r, c: +el.dataset.c };
+    }
+    return null;
+  }
+
+  function startDrag(r, c) {
+    if (cleared[r][c]) return;
+    dragging = true;
+    path = [{ r, c }];
+    updateTileVisuals();
+    drawPath();
+  }
+
+  function extendDrag(r, c) {
+    if (!dragging) return;
+    const last = path[path.length - 1];
+    if (r === last.r && c === last.c) return;
+    if (path.length > 1) {
+      const prev = path[path.length - 2];
+      if (prev.r === r && prev.c === c) {
+        path.pop();
+        updateTileVisuals();
+        drawPath();
+        return;
+      }
+    }
+    if (isAdjacent(last, { r, c }) && !inPath(r, c) && !cleared[r][c]) {
+      path.push({ r, c });
+      updateTileVisuals();
+      drawPath();
+    }
+  }
+
+  gridEl.addEventListener('mousedown', (e) => {
+    const t = e.target.closest('.tile');
+    if (t) startDrag(+t.dataset.r, +t.dataset.c);
+  });
+  gridEl.addEventListener('mousemove', (e) => {
+    if (!dragging) return;
+    const t = e.target.closest('.tile');
+    if (t) extendDrag(+t.dataset.r, +t.dataset.c);
+  });
+  document.addEventListener('mouseup', endDrag);
+
+  gridEl.addEventListener('touchstart', (e) => {
+    const touch = e.touches[0];
+    const cell = cellFromPoint(touch.clientX, touch.clientY);
+    if (cell) startDrag(cell.r, cell.c);
+    e.preventDefault();
+  }, { passive: false });
+
+  gridEl.addEventListener('touchmove', (e) => {
+    if (!dragging) return;
+    const touch = e.touches[0];
+    const cell = cellFromPoint(touch.clientX, touch.clientY);
+    if (cell) extendDrag(cell.r, cell.c);
+    e.preventDefault();
+  }, { passive: false });
+
+  document.addEventListener('touchend', endDrag);
+
+  document.getElementById('continueBtn').addEventListener('click', () => {
+    window.location.href = 'stage3-photomap.html';
+  });
+</script>
+
+</body>
+</html>
